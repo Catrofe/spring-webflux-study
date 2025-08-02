@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Catrofe
+      changes:
+        - sqlFile:
+            path: db/changelog/01-create-currency-exchange-log.sql
