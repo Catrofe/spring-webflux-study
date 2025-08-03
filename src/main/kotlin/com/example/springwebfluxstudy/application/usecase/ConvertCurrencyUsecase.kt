@@ -6,19 +6,22 @@ import com.example.springwebfluxstudy.domain.model.CurrencyExchangeLog
 import com.example.springwebfluxstudy.domain.port.`in`.ConvertCurrency
 import com.example.springwebfluxstudy.domain.port.out.CurrencyExchangeLogRepository
 import com.example.springwebfluxstudy.domain.port.out.ExchangeRateClientPort
+import com.example.springwebfluxstudy.domain.port.out.RateCachePort
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
 @Service
 class ConvertCurrencyUsecase(
     private val exchangeRatePort: ExchangeRateClientPort,
-    private val currencyExchangeLogRepository: CurrencyExchangeLogRepository
+    private val currencyExchangeLogRepository: CurrencyExchangeLogRepository,
+    private val rateCachePort: RateCachePort
 ): ConvertCurrency {
     override fun convertCurrency(currency: CurrencyConversionRequest): Mono<CurrencyConversionResponse> {
         val exchangeRate = exchangeRatePort.getExchangeRate(currency.from, currency.to, currency.amount)
             .flatMap { exchangeRateResponse ->
                 val exchangeLog = CurrencyExchangeLog(exchangeRateResponse)
                 currencyExchangeLogRepository.save(exchangeLog)
+                    .then(rateCachePort.saveRate(exchangeLog))
                     .thenReturn(exchangeLog)
             }
             .map { currencyExchangeLog ->
@@ -26,6 +29,7 @@ class ConvertCurrencyUsecase(
                     currencyExchangeLog
                 )
             }
+
 
         return exchangeRate.onErrorResume {
             Mono.error(
