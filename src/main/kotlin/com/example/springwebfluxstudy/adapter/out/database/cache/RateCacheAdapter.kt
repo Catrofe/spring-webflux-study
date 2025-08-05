@@ -27,7 +27,15 @@ class RateCacheAdapter(
         val key = generateCacheKey(from, to)
         return redisTemplate.opsForValue()
             .get(key)
-            .switchIfEmpty(Mono.error(RuntimeException("Rate not found for key: $key")))
+            .flatMap { cachedRate ->
+                if (cachedRate != null) {
+                    logger.info("Cache hit for key: $key -> $cachedRate")
+                    Mono.just(cachedRate)
+                } else {
+                    logger.info("Cache miss for key: $key")
+                    Mono.empty()
+                }
+            }
     }
 
     override fun saveRate(rate: CurrencyExchangeLog): Mono<Void> {
