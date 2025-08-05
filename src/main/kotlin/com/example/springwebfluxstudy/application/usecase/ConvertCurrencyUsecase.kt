@@ -11,6 +11,8 @@ import com.example.springwebfluxstudy.domain.port.out.RateCachePort
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import java.math.BigDecimal
+import java.math.MathContext
 
 @Service
 class ConvertCurrencyUsecase(
@@ -69,11 +71,12 @@ class ConvertCurrencyUsecase(
                         )
                     )
                 } else {
+                    val reversedQuote = calculateReversedQuote(cachedRate.quote)
                     Mono.just(
                         ExchangeRateConverterResponse(
                             currency.copy(from = currency.to, to = currency.from),
-                            cachedRate.quote,
-                            (currency.amount * cachedRate.quote)
+                            reversedQuote,
+                            (currency.amount * reversedQuote)
                         )
                     )
                 }
@@ -82,6 +85,10 @@ class ConvertCurrencyUsecase(
             Mono.empty()
         }
     }
+
+    private fun calculateReversedQuote(quote: BigDecimal): BigDecimal =
+        BigDecimal.ONE.divide(quote, MathContext.DECIMAL128)
+            .setScale(6, java.math.RoundingMode.HALF_UP)
 }
 
 

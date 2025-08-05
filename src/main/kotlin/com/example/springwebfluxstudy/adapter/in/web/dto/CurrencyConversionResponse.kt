@@ -19,8 +19,8 @@ data class CurrencyConversionResponse(
         from = currency.fromCurrency,
         to = currency.toCurrency,
         amount = currency.amount,
-        quote = currency.quote,
-        convertedAmount = currency.convertedAmount,
+        quote = currency.quote.stripTrailingZeros(),
+        convertedAmount = currency.convertedAmount.stripTrailingZeros(),
         createdAt = currency.createdAt
     )
 }

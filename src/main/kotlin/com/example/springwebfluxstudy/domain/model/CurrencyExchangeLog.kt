@@ -38,7 +38,7 @@ class CurrencyExchangeLog(
         fromCurrency = exchangeRate.query.from,
         toCurrency = exchangeRate.query.to,
         amount = exchangeRate.query.amount,
-        quote = exchangeRate.info.quote,
+        quote = exchangeRate.info.quote.setScale(6, java.math.RoundingMode.HALF_UP),
         convertedAmount = exchangeRate.result,
     )
 }
