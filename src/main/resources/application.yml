@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: spring-webflux-study
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/currencydb
+    username: postgres
+    password: ~H?z4H`C1314
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  sql:
+    init:
+      mode: always
+      platform: postgres
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    url: jdbc:postgresql://localhost:5432/currencydb
+    user: postgres
+    password: ~H?z4H`C1314
+
+
+
+exchange:
+  rate:
+    api:
+      access:
+        key: ${EXCHANGE_RATE_API_ACCESS_KEY}
+      url: ${EXCHANGE_RATE_API_URL}
